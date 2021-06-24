@@ -1,10 +1,19 @@
 # Provider version requirements
 terraform {
 
-  backend "s3" {
-    bucket = "tfstate873654210389"
-    key    = "terraform_aws_vpc.tfstate"
-    region = "eu-west-2"
+  # backend "s3" {
+  #   bucket = "tfstate873654210389"
+  #   key    = "terraform_aws_vpc.tfstate"
+  #   region = "eu-west-2"
+  # }
+
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "vpzen"
+
+    workspaces {
+      name = "aws-vpc-dev-eu-west2"
+    }
   }
 
   required_providers {
@@ -37,7 +46,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "priv_a" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = var.subnet_priv_a_cidr
   availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = false
 
@@ -49,7 +58,7 @@ resource "aws_subnet" "priv_a" {
 
 resource "aws_subnet" "priv_b" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = var.subnet_priv_b_cidr
   availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = false
 
@@ -60,7 +69,7 @@ resource "aws_subnet" "priv_b" {
 
 resource "aws_subnet" "priv_c" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.3.0/24"
+  cidr_block              = var.subnet_priv_c_cidr
   availability_zone       = "eu-west-2c"
   map_public_ip_on_launch = false
 
@@ -74,7 +83,7 @@ resource "aws_subnet" "priv_c" {
 # These subnets have a route directly to the internet gateway and provision public IP's by default
 resource "aws_subnet" "pub_a" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.10.0/24"
+  cidr_block              = var.subnet_pub_a_cidr
   availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = true
 
@@ -85,7 +94,7 @@ resource "aws_subnet" "pub_a" {
 
 resource "aws_subnet" "pub_b" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.11.0/24"
+  cidr_block              = var.subnet_pub_b_cidr
   availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = true
 
@@ -96,7 +105,7 @@ resource "aws_subnet" "pub_b" {
 
 resource "aws_subnet" "pub_c" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.11.0/24"
+  cidr_block              = var.subnet_pub_c_cidr
   availability_zone       = "eu-west-2c"
   map_public_ip_on_launch = true
 
@@ -137,7 +146,7 @@ resource "aws_eip" "nat_c" {
 resource "aws_nat_gateway" "nat_a" {
   allocation_id = aws_eip.nat_a.id
   subnet_id     = aws_subnet.pub_a.id
-  depends_on    = [aws_internet_gateway.gw] # Breaks outbound connectivity via NAT if removed
+  depends_on    = [aws_internet_gateway.igw] # Breaks outbound connectivity via NAT if removed
   tags = {
     Name = "natgw-a"
   }
@@ -146,7 +155,7 @@ resource "aws_nat_gateway" "nat_a" {
 resource "aws_nat_gateway" "nat_b" {
   allocation_id = aws_eip.nat_b.id
   subnet_id     = aws_subnet.pub_b.id
-  depends_on    = [aws_internet_gateway.gw] # Breaks outbound connectivity via NAT if removed
+  depends_on    = [aws_internet_gateway.igw] # Breaks outbound connectivity via NAT if removed
   tags = {
     Name = "natgw-b"
   }
@@ -155,7 +164,7 @@ resource "aws_nat_gateway" "nat_b" {
 resource "aws_nat_gateway" "nat_c" {
   allocation_id = aws_eip.nat_c.id
   subnet_id     = aws_subnet.pub_c.id
-  depends_on    = [aws_internet_gateway.gw] # Breaks outbound connectivity via NAT if removed
+  depends_on    = [aws_internet_gateway.igw] # Breaks outbound connectivity via NAT if removed
   tags = {
     Name = "natgw-c"
   }
@@ -172,7 +181,7 @@ resource "aws_route_table" "pub" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    gateway_id = aws_internet_gateway.igw.id
   }
 
   tags = {
