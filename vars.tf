@@ -19,16 +19,16 @@ variable "subnet_priv_c_cidr" {
 }
 
 variable "subnet_pub_a_cidr" {
-  default     = "10.0.10.0/16"
+  default     = "10.0.10.0/24"
   description = "CIDR block for public subnet A."
 }
 
 variable "subnet_pub_b_cidr" {
-  default     = "10.0.11.0/16"
+  default     = "10.0.11.0/24"
   description = "CIDR block for public subnet B."
 }
 
 variable "subnet_pub_c_cidr" {
-  default     = "10.0.12.0/16"
+  default     = "10.0.12.0/24"
   description = "CIDR block for public subnet C."
 }
