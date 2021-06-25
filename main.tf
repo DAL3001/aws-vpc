@@ -190,7 +190,7 @@ resource "aws_route_table" "pub" {
 }
 
 # Private route table A
-resource "aws_route_table" "priv-a" {
+resource "aws_route_table" "priv_a" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -204,7 +204,7 @@ resource "aws_route_table" "priv-a" {
 }
 
 # Private route table B
-resource "aws_route_table" "priv-b" {
+resource "aws_route_table" "priv_b" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -218,7 +218,7 @@ resource "aws_route_table" "priv-b" {
 }
 
 # Private route table C
-resource "aws_route_table" "priv-c" {
+resource "aws_route_table" "priv_c" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -229,4 +229,36 @@ resource "aws_route_table" "priv-c" {
   tags = {
     Name = "rt-priv-c"
   }
+}
+
+# Associate the above routing tables to the corresponding subnets
+resource "aws_route_table_association" "priv_a" {
+  subnet_id      = aws_subnet.priv_a.id
+  route_table_id = aws_route_table.priv_a.id
+}
+
+resource "aws_route_table_association" "priv_b" {
+  subnet_id      = aws_subnet.priv_b.id
+  route_table_id = aws_route_table.priv_b.id
+}
+
+resource "aws_route_table_association" "priv_c" {
+  subnet_id      = aws_subnet.priv_c.id
+  route_table_id = aws_route_table.priv_c.id
+}
+
+# Associate the public subnets to the same routing table that they all share
+resource "aws_route_table_association" "pub_a" {
+  subnet_id      = aws_subnet.pub_a.id
+  route_table_id = aws_route_table.pub.id
+}
+
+resource "aws_route_table_association" "pub_b" {
+  subnet_id      = aws_subnet.pub_b.id
+  route_table_id = aws_route_table.pub.id
+}
+
+resource "aws_route_table_association" "pub_c" {
+  subnet_id      = aws_subnet.pub_c.id
+  route_table_id = aws_route_table.pub.id
 }
