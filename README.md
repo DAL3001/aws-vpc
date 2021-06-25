@@ -1,18 +1,16 @@
-# aws-vpc-shared
-AWS VPC Architecture best practices for a complete "shared" VPC. The intention here is to reduce the amount of VPC's an organisation has and instead provide application teams in different accounts with access to Subnets for their deployments. You don't have to completely avoid multiple VPC's, additional VPC's can still be configured to communicate with a shared VPC using VPC peering or Transit gateway.
+# aws-vpc
 
-- Useful when network isolation between teams doesn't need to be as strictly enforced but you still want to control who can create what and in which subnets by enforcing permissions against accounts.
+Cookie-cutter VPC blueprint, setup as per AWS best practice - https://docs.aws.amazon.com/quickstart/latest/vpc/images/quickstart-vpc-design-fullscreen.png
 
-- In this model, you essentially share one or more subnets with an account (probably an application team). This account can only deploy resources in this subnet. 
+Deploys 3x Private and 3x Public subnets with Internet Egress services using eu-west-2 (London) spanning subnets across 3 Availability Zones. 
 
-- Network security is handled with network ACL's and security groups
+To deploy: 
 
-- One subnet per participant account enables network ACL to provide network isolation in addition to security groups.
+Edit the backend config to store state somewhere other than Terraform Cloud (unless you'd like to use it, in which case create a workspace that matches the backend definition in the code.)
 
-- Overall control and visibility of all of the VPC and subnets is retained by the Networking team account, this account is responsible for handing out the subnets to the other participant app team accounts. 
-
-
-## Example from AWS Whitepaper on VPC architecture
-  
-  
-![alt text](vpc_sharing_ref.jpg "From AWS VPC whitepaper")
+```
+terraform login (if using TF cloud)
+terraform init
+terraform plan
+terraform apply
+```
